@@ -1,0 +1,6 @@
+{
+  "name": "Sona",
+  "description": "A faithful, high-fidelity restoration and interactive recreation of the Sona music streaming homepage, featuring an immersive parallax album cover canvas, fluid color gradients, audio previews, dynamic artist sections, and high-performance visual elements.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
