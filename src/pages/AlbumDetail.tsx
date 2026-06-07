@@ -34,10 +34,10 @@ export default function AlbumDetail() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6 md:px-12 lg:px-24 max-w-7xl mx-auto">
-      <Link to="/" className="inline-flex items-center space-x-2 text-neutral-400 hover:text-white transition-colors mb-12 group">
+      <button onClick={() => navigate(-1)} className="inline-flex items-center space-x-2 text-neutral-400 hover:text-white transition-colors mb-12 group focus:outline-none">
         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-        <span className="uppercase tracking-widest text-xs font-semibold">Back to Catalog</span>
-      </Link>
+        <span className="uppercase tracking-widest text-xs font-semibold">Back</span>
+      </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
         {/* Left Column: Cover Art */}

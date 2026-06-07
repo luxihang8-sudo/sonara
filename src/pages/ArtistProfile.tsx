@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { TRACKS } from '../data/tracks';
 import { ARTISTS } from '../data/artists';
@@ -16,11 +16,22 @@ const getValidCover = (url: string, trackId: string) => {
 export default function ArtistProfile() {
   const { name } = useParams<{ name: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const coverOverride = searchParams.get('cover');
   const [activeTab, setActiveTab] = useState<'discography' | 'news'>('discography');
   
   const decodedName = name ? decodeURIComponent(name) : 'Unknown Artist';
-  const artistTracks = TRACKS.filter(t => t.artist === decodedName);
+  
+  const isMatch = (trackArtist: string, query: string) => {
+    const t = trackArtist.toLowerCase();
+    const q = query.toLowerCase();
+    if (q === 'justin hurwitz') {
+      return t.includes('ryan gosling') || t.includes('original cast');
+    }
+    return t.includes(q) || q.includes(t);
+  };
+  
+  const artistTracks = TRACKS.filter(t => isMatch(t.artist, decodedName));
   
   // Provide mock generic data if artist has no tracks in our small DB
   const displayTracks = artistTracks.length > 0 ? artistTracks : [TRACKS[0], TRACKS[1], TRACKS[2]];
@@ -28,10 +39,10 @@ export default function ArtistProfile() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6 md:px-12 lg:px-24 max-w-[1200px] mx-auto">
-      <Link to="/" className="inline-flex items-center space-x-2 text-neutral-400 hover:text-white transition-colors mb-12 group border border-white/10 px-4 py-2 rounded-full">
+      <button onClick={() => navigate(-1)} className="inline-flex items-center space-x-2 text-neutral-400 hover:text-white transition-colors mb-12 group border border-white/10 px-4 py-2 rounded-full focus:outline-none">
         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
         <span className="uppercase tracking-widest text-xs font-semibold">Back</span>
-      </Link>
+      </button>
 
       {/* Artist Header */}
       <div className="flex flex-col md:flex-row gap-12 items-start mb-16">

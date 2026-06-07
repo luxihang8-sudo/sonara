@@ -28,9 +28,9 @@ const GRID_DOTS: GridDot[] = Array.from({ length: 24 }).map((_, idx) => {
   };
 });
 
-// A highly dense, overlapping canvas layout with 80 scattered album covers
+// A highly dense, overlapping canvas layout with scattered album covers
 // Completely randomized with no regular shape, bleeding heavily outside the main screen area
-const SCATTERED_ALBUMS: CanvasItem[] = Array.from({ length: 80 }).map((_, i) => {
+const SCATTERED_ALBUMS: CanvasItem[] = Array.from({ length: 56 }).map((_, i) => {
   const trackIndex = i % TRACKS.length;
   const track = TRACKS[trackIndex];
   
@@ -249,47 +249,56 @@ export default function HeroCanvas() {
       
       const speed = selectedItem ? 0.08 : 0.05; // Snappier transitions on focusing
       
-      // X coordinate interpolation
-      const dx = targetPanRef.current.x - panRef.current.x;
-      panRef.current.x += dx * speed;
+      // Stop recalculations when scrolled past the viewport
+      const isOffscreen = window.scrollY > window.innerHeight * 1.5;
       
-      // Y coordinate interpolation
-      const dy = targetPanRef.current.y - panRef.current.y;
-      panRef.current.y += dy * speed;
-      
-      // Scale / Zoom interpolation
-      const ds = targetPanRef.current.scale - panRef.current.scale;
-      panRef.current.scale += ds * speed;
-
-      // Throttle pan state updates to only fire when the camera is actively moving significantly
-      // Instead of forcing React to re-render 80 complex DOM nodes 60 times a second,
-      // we mutate the CSS transform directly on the container. This fixes the severe
-      // stuttering and audio playback lag by freeing up the main thread.
-      if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001 || Math.abs(ds) > 0.0001) {
-        if (containerRef.current) {
-           containerRef.current.style.transform = `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${panRef.current.scale})`;
-        }
+      if (!isOffscreen) {
+        // X coordinate interpolation
+        const dx = targetPanRef.current.x - panRef.current.x;
+        panRef.current.x += dx * speed;
         
-        // Directly mutate the 3D parallax layers of all children without React render cycle
-        if (itemsContainerRef.current) {
-          const children = itemsContainerRef.current.children;
-          for (let i = 0; i < children.length; i++) {
-            const child = children[i] as HTMLElement;
-            const item = SCATTERED_ALBUMS[i];
-            if (!item) continue;
-            
-            const zDepth = item.zDepth ?? 0.5;
-            const isCurrent = selectedItem?.id === item.id;
-            
-            if (!isCurrent) {
-              const parallaxFactor = 1.6;
-              const px = (panRef.current.x * (zDepth - 0.6) * parallaxFactor) / panRef.current.scale;
-              const py = (panRef.current.y * (zDepth - 0.6) * parallaxFactor) / panRef.current.scale;
-              child.style.transform = `translate3d(${px}px, ${py}px, 0)`;
-            } else {
-              child.style.transform = `translate3d(0px, 0px, 0)`;
+        // Y coordinate interpolation
+        const dy = targetPanRef.current.y - panRef.current.y;
+        panRef.current.y += dy * speed;
+        
+        // Scale / Zoom interpolation
+        const ds = targetPanRef.current.scale - panRef.current.scale;
+        panRef.current.scale += ds * speed;
+
+        // Throttle pan state updates to only fire when the camera is actively moving significantly
+        const isMoving = Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001 || Math.abs(ds) > 0.0001;
+        
+        if (isMoving) {
+          if (containerRef.current) {
+             containerRef.current.style.transform = `translate3d(${panRef.current.x.toFixed(2)}px, ${panRef.current.y.toFixed(2)}px, 0) scale(${panRef.current.scale.toFixed(4)})`;
+          }
+          
+          // Directly mutate the 3D parallax layers of all children without React render cycle
+          if (itemsContainerRef.current) {
+            const children = itemsContainerRef.current.children;
+            for (let i = 0; i < children.length; i++) {
+              const child = children[i] as HTMLElement;
+              const item = SCATTERED_ALBUMS[i];
+              if (!item) continue;
+              
+              const zDepth = item.zDepth ?? 0.5;
+              const isCurrent = selectedItem?.id === item.id;
+              
+              if (!isCurrent) {
+                const parallaxFactor = 1.6;
+                const px = (panRef.current.x * (zDepth - 0.6) * parallaxFactor) / panRef.current.scale;
+                const py = (panRef.current.y * (zDepth - 0.6) * parallaxFactor) / panRef.current.scale;
+                child.style.transform = `translate3d(${px.toFixed(2)}px, ${py.toFixed(2)}px, 0)`;
+              } else {
+                child.style.transform = `translate3d(0px, 0px, 0)`;
+              }
             }
           }
+        } else {
+           // Snap to exact target to completely halt drifting calculations when close enough
+           panRef.current.x = targetPanRef.current.x;
+           panRef.current.y = targetPanRef.current.y;
+           panRef.current.scale = targetPanRef.current.scale;
         }
       }
 
@@ -443,19 +452,19 @@ export default function HeroCanvas() {
           const parallaxX = isCurrent ? 0 : (panRef.current.x * (zDepth - 0.6) * parallaxFactor) / panRef.current.scale;
           const parallaxY = isCurrent ? 0 : (panRef.current.y * (zDepth - 0.6) * parallaxFactor) / panRef.current.scale;
           
-          // 4. Staggered size variety ("有大有小"): Add a stable ID-based modifier to depth scale for high visual tension!
-          const sizeIdFactor = 0.82 + ((parseInt(item.id.replace('album-', '')) * 17) % 43) / 100; // stable factor between 0.82 and 1.25
-          const depthScale = isCurrent ? 1.15 : (0.18 + zDepth * 1.32) * sizeIdFactor;
+          // 4. Staggered size variety ("有大有小"): Create organic rhythm with moderate but distinct variance
+          const idNum = parseInt(item.id.replace('album-', ''));
+          // Moderate scale jumps for an elegant, structured feel (large: 1.6, medium: ~1.15, small: ~0.8)
+          const sizeIdFactor = idNum % 5 === 0 ? 1.6 : (idNum % 3 === 0 ? 1.15 : 0.7 + ((idNum * 19) % 30) / 100); 
+          const depthScale = isCurrent ? 1.25 : (0.18 + zDepth * 1.15) * sizeIdFactor;
           
           // 5. Cinematic lens Depth of Field (DoF) & focus bokeh
           const dofBlur = isCurrent ? 0 : Math.pow(1 - zDepth, 1.5) * 8; // Reduced max blur from 32px to 8px for performance
           
           // Cinematic atmospheric lighting (darker depth, crisp vivid foreground)
           const brightnessFactor = isCurrent ? 1.0 : (0.2 + zDepth * 0.8);
-          const contrastFactor = isCurrent ? 1.0 : (0.6 + zDepth * 0.4);
-          
-          // Use filter only for subtle depth, use opacity for deeper depth to save GPU
-          const filterStyle = `blur(${dofBlur.toFixed(1)}px) brightness(${brightnessFactor.toFixed(2)}) contrast(${contrastFactor.toFixed(2)})`;
+          // Removed expensive blur() and contrast() filters to fix severe scroll/animation stutter
+          const filterStyle = `brightness(${brightnessFactor.toFixed(2)})`;
           
           // Layer opacities
           const baseOpacity = isCurrent 
@@ -472,7 +481,7 @@ export default function HeroCanvas() {
           return (
             <div
               key={item.id}
-              className="absolute group"
+              className="absolute group will-change-transform"
               data-zdepth={zDepth}
               data-current={isCurrent}
               style={{
@@ -483,15 +492,15 @@ export default function HeroCanvas() {
                 zIndex: zIndexValue,
                 opacity: baseOpacity,
                 transform: `translate3d(${parallaxX}px, ${parallaxY}px, 0)`,
-                transition: isDragging ? 'opacity 0.3s' : 'opacity 0.3s',
+                transition: isDragging ? 'opacity 0.2s' : 'opacity 0.2s',
               }}
             >
               {/* 3D Album Cover Card */}
               <div
-                className="relative w-full h-full cursor-pointer perspective-1000 select-none animate-fade-in"
+                className="relative w-full h-full cursor-pointer perspective-1000 select-none animate-fade-in will-change-transform"
                 style={{
                   filter: filterStyle,
-                  transition: 'filter 0.5s ease-out, transform 0.5s ease-out',
+                  transition: 'filter 0.3s ease-out, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
                 }}
                 onClick={(e) => {
                   // Only expand if the mouse wasn't doing a real drag operation
@@ -524,10 +533,10 @@ export default function HeroCanvas() {
                       src={getAlbumCoverUrl(item)} 
                       alt={item.track.title}
                       referrerPolicy="no-referrer"
-                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ${
                         isCurrent 
                           ? 'opacity-100 grayscale-0' 
-                          : 'opacity-50 grayscale group-hover:opacity-85'
+                          : 'opacity-70 grayscale group-hover:opacity-100'
                       }`}
                     />
                     
@@ -567,9 +576,9 @@ export default function HeroCanvas() {
 
                       {item.track.synthTheme === 'ambient' && (
                         <div 
-                          className="w-48 h-48 rounded-full opacity-45 filter blur-2xl transition-all duration-1000"
+                          className="w-48 h-48 rounded-full opacity-45 transition-opacity"
                           style={{
-                            background: `radial-gradient(circle, ${item.track.color} 0%, transparent 70%)`
+                            background: `radial-gradient(circle, ${item.track.color}40 0%, transparent 60%)`
                           }}
                         />
                       )}

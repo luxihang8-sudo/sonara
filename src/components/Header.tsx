@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useLanguage, Language } from '../context/LanguageContext';
-import { Globe } from 'lucide-react';
+import { Globe, Menu, X } from 'lucide-react';
 
 export default function Header() {
   const { scrollY } = useScroll();
@@ -11,11 +11,21 @@ export default function Header() {
   const [prevScroll, setPrevScroll] = useState(0);
   const [showAbout, setShowAbout] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { items } = useCart();
   const { language, setLanguage, t } = useLanguage();
+  const location = useLocation();
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setShowMobileMenu(false);
+  }, [location.pathname]);
 
   // Show/Hide Header on dynamic scrolling
   useMotionValueEvent(scrollY, "change", (latest) => {
+    // Disable hide on scroll when mobile menu is open
+    if (showMobileMenu) return;
+
     const diff = latest - prevScroll;
     if (latest < 50) {
       setHidden(false);
@@ -29,10 +39,11 @@ export default function Header() {
     setPrevScroll(latest);
   });
 
-  const categoryLink = (text: string, to: string, colorClass = "text-[#BAFF39] hover:text-[#BAFF39]/85") => {
+  const categoryLink = (text: string, to: string, colorClass = "text-[#BAFF39] hover:text-[#BAFF39]/85", onClick?: () => void) => {
     return (
       <Link
         to={to}
+        onClick={onClick}
         className={`group relative flex items-center space-x-0.5 text-xs font-medium uppercase tracking-[0.08em] ${colorClass} transition-all duration-300`}
       >
         <span className="relative overflow-hidden pr-1">
@@ -54,19 +65,20 @@ export default function Header() {
         }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 w-full z-50 bg-transparent h-16 flex items-center px-6 md:px-12 justify-between"
+        className="fixed top-0 left-0 w-full z-40 bg-transparent h-16 flex items-center px-6 md:px-12 justify-between"
       >
         {/* Left: Brand Logo */}
         <div className="flex items-center space-x-12">
           <Link
             to="/"
-            className="text-2xl font-black lowercase tracking-tighter text-[#FFFFFF] select-none hover:opacity-90 transition-opacity flex items-center space-x-1.5"
+            onClick={() => setShowMobileMenu(false)}
+            className="text-2xl font-black lowercase tracking-tighter text-[#FFFFFF] select-none hover:opacity-90 transition-opacity flex items-center space-x-1.5 z-50 relative"
           >
             <span className="text-[#BAFF39]">sonara</span>
             <span className="w-1.5 h-1.5 bg-[#BAFF39] rounded-full"></span>
           </Link>
 
-          {/* Middle Left: Category links */}
+          {/* Middle Left: Category links (Desktop) */}
           <nav className="hidden lg:flex items-center space-x-6 border-l border-[#262626] pl-12">
             {categoryLink(t('Discover'), '/discover')}
             {categoryLink(items.length > 0 ? `${t('Cart (')}${items.length})` : t('Cart'), '/cart')}
@@ -74,8 +86,8 @@ export default function Header() {
         </div>
 
         {/* Middle Right Links & Right Section */}
-        <div className="flex items-center space-x-8">
-          <nav className="hidden md:flex items-center space-x-6">
+        <div className="flex items-center space-x-6 md:space-x-8 z-50 relative">
+          <nav className="hidden lg:flex items-center space-x-6">
             {categoryLink(t('For Artists'), '/artists', 'text-[#BAFF39] hover:text-[#BAFF39]/85')}
             <button
               onClick={() => setShowAbout(true)}
@@ -90,17 +102,17 @@ export default function Header() {
             </button>
           </nav>
 
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4 md:space-x-6">
             {/* Slogan & UI indicator */}
             <span className="hidden xl:inline-block text-[10px] text-[#737373] tracking-widest uppercase text-end font-mono leading-none border-r border-[#262626] pr-6">
               {t('Better music')} <br />
               {t('streaming for everyone.')}
             </span>
 
-            {categoryLink(t('Login'), '/login', 'text-[#BAFF39] hover:text-[#BAFF39]/85')}
+            {categoryLink(t('Login'), '/login', 'text-[#BAFF39] hover:text-[#BAFF39]/85', () => setShowMobileMenu(false))}
             
             {/* Language Switcher */}
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <button 
                 onClick={() => setShowLangMenu(!showLangMenu)}
                 className="flex items-center space-x-1 text-[#BAFF39] hover:text-[#BAFF39]/80 transition-colors"
@@ -141,8 +153,71 @@ export default function Header() {
                 )}
               </AnimatePresence>
             </div>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="lg:hidden flex items-center justify-center text-[#BAFF39] hover:text-[#BAFF39]/80 transition-colors"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+            >
+              {showMobileMenu ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
+        
+        {/* Full Screen Mobile Menu */}
+        <AnimatePresence>
+          {showMobileMenu && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-40 bg-neutral-950/95 backdrop-blur-md lg:hidden flex flex-col justify-center items-center px-6"
+            >
+              <nav className="flex flex-col items-center space-y-8 w-full max-w-sm">
+                <Link to="/discover" onClick={() => setShowMobileMenu(false)} className="text-3xl font-black uppercase tracking-widest text-[#BAFF39] hover:text-[#BAFF39]/80 transition-colors">{t('Discover')}</Link>
+                <Link to="/artists" onClick={() => setShowMobileMenu(false)} className="text-3xl font-black uppercase tracking-widest text-[#BAFF39] hover:text-[#BAFF39]/80 transition-colors">{t('For Artists')}</Link>
+                <Link to="/cart" onClick={() => setShowMobileMenu(false)} className="text-3xl font-black uppercase tracking-widest text-[#BAFF39] hover:text-[#BAFF39]/80 transition-colors">{items.length > 0 ? `${t('Cart (')}${items.length})` : t('Cart')}</Link>
+                <button 
+                   onClick={() => {
+                     setShowMobileMenu(false);
+                     setShowAbout(true);
+                   }}
+                   className="text-3xl font-black uppercase tracking-widest text-[#BAFF39] hover:text-[#BAFF39]/80 transition-colors"
+                >
+                  {t('About')}
+                </button>
+                
+                <div className="pt-12 border-t border-white/10 w-full flex flex-col items-center space-y-6">
+                  {/* Additional Mobile controls */}
+                   <div className="flex flex-wrap justify-center gap-4">
+                    {[
+                      { code: 'en', label: 'English' },
+                      { code: 'zh-CN', label: '简体中文' },
+                      { code: 'zh-TW', label: '繁體中文' },
+                      { code: 'fr', label: 'Français' },
+                    ].map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => {
+                          setLanguage(lang.code as Language);
+                          setShowMobileMenu(false);
+                        }}
+                        className={`px-4 py-2 text-xs uppercase tracking-widest font-mono rounded border ${
+                          language === lang.code 
+                            ? 'border-[#BAFF39] text-[#BAFF39]' 
+                            : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
+                        }`}
+                      >
+                        {lang.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.header>
 
       <AnimatePresence>

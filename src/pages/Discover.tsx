@@ -58,8 +58,9 @@ export default function Discover() {
     <div className="min-h-screen pt-28 pb-24 px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto">
       {/* Header */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="mb-12"
       >
         <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 text-white uppercase">
@@ -72,9 +73,9 @@ export default function Discover() {
 
       {/* Tag Filtering Row */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        initial={{ opacity: 0, y: 30, filter: "blur(5px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         className="flex mb-12 overflow-x-auto pb-4 scrollbar-hide space-x-3 items-center"
       >
         <div className="flex-shrink-0 text-neutral-500 mr-2 flex items-center">
@@ -98,34 +99,57 @@ export default function Discover() {
 
       {/* Genre Hubs */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.08, delayChildren: 0.1 }
+          }
+        }}
         className="mb-16"
       >
-        <h2 className="text-sm font-mono text-neutral-500 uppercase tracking-widest mb-6">Genre Hubs</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <motion.h2 variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className="text-sm font-mono text-neutral-500 uppercase tracking-widest mb-6">Genre Hubs</motion.h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 perspective-[1000px]">
           {GENRES.map((genre) => (
-            <button
+            <motion.button
+              variants={{
+                hidden: { opacity: 0, y: 40, rotateX: -20, scale: 0.9, filter: "blur(8px)" },
+                visible: { opacity: 1, y: 0, rotateX: 0, scale: 1, filter: "blur(0px)", transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+              }}
+              whileHover={{ 
+                scale: 1.05, 
+                y: -5,
+                rotateX: 5,
+                boxShadow: `0 20px 40px -10px ${genre.color}40`,
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
+              whileTap={{ scale: 0.95 }}
               key={genre.id}
               onClick={() => setActiveGenre(activeGenre === genre.id ? null : genre.id)}
-              className={`relative group overflow-hidden rounded-xl aspect-[4/3] flex flex-col items-center justify-center transition-all ${
+              className={`relative group overflow-hidden rounded-xl aspect-[4/3] flex flex-col items-center justify-center transition-colors ${
                 activeGenre === genre.id
-                  ? 'bg-white/10 ring-2 ring-[#BAFF39] shadow-[0_0_30px_rgba(186,255,57,0.15)]'
-                  : 'bg-black border border-white/10 hover:border-white/20 hover:bg-white/5'
+                  ? 'bg-white/10 ring-2 ring-[#BAFF39]'
+                  : 'bg-black border border-white/10 hover:border-white/20 hover:bg-neutral-900/80'
               }`}
+              style={{ transformStyle: 'preserve-3d' }}
             >
               <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500" 
+                className={`absolute inset-0 transition-opacity duration-700 ${activeGenre === genre.id ? 'opacity-40' : 'opacity-0 group-hover:opacity-20'}`} 
                 style={{ background: `radial-gradient(circle at center, ${genre.color}, transparent 70%)` }}
               />
-              <div className={`mb-3 transition-transform group-hover:scale-110 duration-500 ${activeGenre === genre.id ? 'text-[#BAFF39]' : 'text-neutral-400 group-hover:text-white'}`}>
+              <motion.div 
+                className={`mb-3 ${activeGenre === genre.id ? 'text-[#BAFF39]' : 'text-neutral-400 group-hover:text-white'}`}
+                animate={{ scale: activeGenre === genre.id ? 1.15 : 1 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              >
                 {genre.icon}
-              </div>
-              <span className={`text-xs font-bold uppercase tracking-widest relative z-10 ${activeGenre === genre.id ? 'text-white' : 'text-neutral-400 group-hover:text-white'}`}>
+              </motion.div>
+              <span className={`text-xs font-bold uppercase tracking-widest relative z-10 transition-colors ${activeGenre === genre.id ? 'text-white' : 'text-neutral-400 group-hover:text-white'}`}>
                 {genre.name}
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
       </motion.div>
@@ -143,24 +167,31 @@ export default function Discover() {
           <motion.div layout className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence mode="popLayout">
               {displayTracks.map((track, i) => (
-                <motion.div
+                  <motion.div
                   layout
                   key={track.id}
-                  initial={{ opacity: 0, scale: 0.8, y: 30, rotateX: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-                  exit={{ opacity: 0, scale: 0.8, y: -20, filter: 'blur(10px)' }}
+                  initial={{ opacity: 0, y: 60, rotateY: 25, rotateX: 15, scale: 0.85, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, y: 0, rotateY: 0, rotateX: 0, scale: 1, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, scale: 0.8, y: 20, filter: 'blur(10px)' }}
                   transition={{ 
-                    duration: 0.5, 
-                    delay: i * 0.03, // faster stagger
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 15
+                    duration: 0.7, 
+                    delay: (i % 12) * 0.05, 
+                    ease: [0.16, 1, 0.3, 1]
                   }}
-                  className="group relative flex flex-col perspective-1000"
+                  whileHover={{ 
+                    y: -10, 
+                    z: 30,
+                    scale: 1.02,
+                    rotateY: -3,
+                    rotateX: 3,
+                    transition: { duration: 0.4, ease: "easeOut" }
+                  }}
+                  className="group relative flex flex-col perspective-[1200px]"
                 >
                   <Link 
                     to={`/album/${track.id}?cover=${encodeURIComponent(getValidCover(track.coverUrl, track.id))}`} 
-                    className="flex flex-col bg-neutral-900/40 border border-white/5 rounded-xl overflow-hidden transition-all duration-500 ease-out hover:shadow-[0_0_40px_rgba(186,255,57,0.15)] hover:border-white/10 hover:-translate-y-2 h-full"
+                    className="flex flex-col bg-neutral-900/40 border border-white/5 rounded-xl overflow-hidden transition-colors duration-500 ease-out hover:border-white/20 h-full"
+                    style={{ transformStyle: 'preserve-3d' }}
                   >
                     <div className="relative aspect-square overflow-hidden bg-black">
                       <motion.img 
@@ -207,16 +238,31 @@ export default function Discover() {
         </div>
 
         {/* Sidebar: Charts / Leaderboards */}
-        <div className="lg:col-span-4 space-y-12">
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.15, delayChildren: 0.3 }
+            }
+          }}
+          className="lg:col-span-4 space-y-12"
+        >
           {/* Weekly Best Sellers */}
-          <ChartSection title="Weekly Best Sellers" icon={<TrendingUp size={16} className="text-[#BAFF39]" />} tracks={weeklyBestSellers} />
-          
+          <motion.div variants={{ hidden: { opacity: 0, x: 50, filter: "blur(10px)" }, visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }}}>
+            <ChartSection title="Weekly Best Sellers" icon={<TrendingUp size={16} className="text-[#BAFF39]" />} tracks={weeklyBestSellers} />
+          </motion.div>
           {/* New Releases */}
-          <ChartSection title="New Releases" icon={<Zap size={16} className="text-[#06B6D4]" />} tracks={newReleases} />
-          
+          <motion.div variants={{ hidden: { opacity: 0, x: 50, filter: "blur(10px)" }, visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }}}>
+            <ChartSection title="New Releases" icon={<Zap size={16} className="text-[#06B6D4]" />} tracks={newReleases} />
+          </motion.div>
           {/* Editor's Picks */}
-          <ChartSection title="Editor's Picks" icon={<Star size={16} className="text-[#EC4899]" />} tracks={editorsPicks} />
-        </div>
+          <motion.div variants={{ hidden: { opacity: 0, x: 50, filter: "blur(10px)" }, visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }}}>
+            <ChartSection title="Editor's Picks" icon={<Star size={16} className="text-[#EC4899]" />} tracks={editorsPicks} />
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
