@@ -3,7 +3,8 @@ import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useLanguage, Language } from '../context/LanguageContext';
-import { Globe, Menu, X } from 'lucide-react';
+import { Globe, Menu, X, QrCode, Twitter, Instagram, Music2 } from 'lucide-react';
+import QRCode from 'react-qr-code';
 
 export default function Header() {
   const { scrollY } = useScroll();
@@ -233,12 +234,49 @@ export default function Header() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="text-center max-w-2xl px-6"
+              className="text-center max-w-4xl px-6 w-full max-h-[90vh] overflow-y-auto py-8"
+              onClick={(e) => e.stopPropagation()}
             >
               <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-8 uppercase text-white hover:text-[#BAFF39] transition-colors cursor-default">sonara</h1>
-              <p className="text-xl md:text-2xl text-neutral-300 font-light leading-relaxed cursor-default">
+              <p className="text-xl md:text-2xl text-neutral-300 font-light leading-relaxed cursor-default mb-16">
                 {t('about_desc')}
               </p>
+              
+              {/* Social QR Codes */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-32 h-32 bg-white rounded-xl flex items-center justify-center p-2 relative group cursor-pointer hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(186,255,57,0.2)]">
+                     <QRCode value="https://twitter.com/sonara_music" size={100} style={{ height: "auto", maxWidth: "100%", width: "100%" }} />
+                     <a href="https://twitter.com/sonara_music" target="_blank" rel="noopener noreferrer" className="absolute inset-0 bg-neutral-900/90 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center space-y-2 border border-[#BAFF39]/30">
+                       <Twitter className="text-[#BAFF39]" strokeWidth={1.5} size={32} />
+                       <span className="text-[10px] font-bold tracking-widest text-[#BAFF39] uppercase">Follow</span>
+                     </a>
+                  </div>
+                  <span className="text-xs uppercase tracking-widest font-mono text-neutral-400">Twitter / X</span>
+                </div>
+
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-32 h-32 bg-white rounded-xl flex items-center justify-center p-2 relative group cursor-pointer hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(186,255,57,0.2)]">
+                     <QRCode value="https://instagram.com/sonara_music" size={100} style={{ height: "auto", maxWidth: "100%", width: "100%" }} />
+                     <a href="https://instagram.com/sonara_music" target="_blank" rel="noopener noreferrer" className="absolute inset-0 bg-neutral-900/90 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center space-y-2 border border-[#BAFF39]/30">
+                       <Instagram className="text-[#BAFF39]" strokeWidth={1.5} size={32} />
+                       <span className="text-[10px] font-bold tracking-widest text-[#BAFF39] uppercase">Follow</span>
+                     </a>
+                  </div>
+                  <span className="text-xs uppercase tracking-widest font-mono text-neutral-400">Instagram</span>
+                </div>
+
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-32 h-32 bg-white rounded-xl flex items-center justify-center p-2 relative group cursor-pointer hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(186,255,57,0.2)]">
+                     <QRCode value="https://tiktok.com/@sonara_music" size={100} style={{ height: "auto", maxWidth: "100%", width: "100%" }} />
+                     <a href="https://tiktok.com/@sonara_music" target="_blank" rel="noopener noreferrer" className="absolute inset-0 bg-neutral-900/90 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center space-y-2 border border-[#BAFF39]/30">
+                       <Music2 className="text-[#BAFF39]" strokeWidth={1.5} size={32} />
+                       <span className="text-[10px] font-bold tracking-widest text-[#BAFF39] uppercase">Watch</span>
+                     </a>
+                  </div>
+                  <span className="text-xs uppercase tracking-widest font-mono text-neutral-400">TikTok</span>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
