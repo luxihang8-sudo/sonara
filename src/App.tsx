@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import ScrollToTop from './components/ScrollToTop';
 import { CartProvider } from './context/CartContext';
 
 import { LanguageProvider } from './context/LanguageContext';
@@ -25,6 +26,7 @@ export default function App() {
     <LanguageProvider>
       <CartProvider>
         <Router>
+          <ScrollToTop />
           <FluidBackground />
           <BackgroundMusic />
           <Routes>

@@ -605,24 +605,24 @@ export default function HeroCanvas() {
               <AnimatePresence>
                 {isCurrent && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -20, scale: 0.95 }}
                     transition={{ duration: 0.4, delay: 0.1 }}
-                    className="absolute inset-0 flex flex-col justify-start items-end text-right p-4 md:p-5 pointer-events-none z-50"
+                    className="absolute top-12 left-[105%] md:left-[110%] flex flex-col justify-start items-start text-left pointer-events-none z-50 min-w-[240px]"
                     style={{
                       transform: 'translateZ(80px)',
                     }}
                   >
-                    <h3 className="text-lg md:text-xl font-bold tracking-tight text-[#BAFF39]" style={{ textShadow: '0 4px 16px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.8)' }}>
+                    <h3 className="text-2xl md:text-3xl font-black tracking-tighter text-[#BAFF39] uppercase leading-tight" style={{ textShadow: '0 4px 30px rgba(0,0,0,0.9), 0 2px 10px rgba(0,0,0,0.9)' }}>
                       {item.track.title}
                     </h3>
-                    <h4 className="text-[10px] md:text-xs text-white font-medium/90 uppercase tracking-widest mt-0.5" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}>
+                    <h4 className="text-[10px] md:text-xs text-white font-medium/90 uppercase tracking-widest mt-1" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}>
                       {item.track.artist}
                     </h4>
                     <Link
                       to={`/album/${item.track.id}?cover=${encodeURIComponent(getAlbumCoverUrl(item))}`}
-                      className="mt-6 pointer-events-auto px-6 py-2 bg-[#BAFF39]/90 hover:bg-[#BAFF39] text-black text-xs font-bold uppercase tracking-wider rounded-full shadow-[0_0_20px_rgba(186,255,57,0.3)] transition-all hover:scale-105"
+                      className="mt-6 pointer-events-auto px-6 py-2.5 bg-[#BAFF39] hover:bg-white text-black text-xs font-bold uppercase tracking-wider rounded-full shadow-[0_0_20px_rgba(186,255,57,0.3)] transition-all hover:scale-105"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {t('Detail & Buy')}
