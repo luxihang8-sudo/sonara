@@ -68,12 +68,12 @@ export default function Header() {
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 w-full z-40 bg-transparent h-16 flex items-center px-6 md:px-12 justify-between"
       >
-        {/* Left: Brand Logo */}
-        <div className="flex items-center space-x-12">
+        {/* Left: Brand Logo & Category Links */}
+        <div className="flex items-center space-x-12 relative z-50">
           <Link
             to="/"
             onClick={() => setShowMobileMenu(false)}
-            className="text-2xl font-black lowercase tracking-tighter text-[#FFFFFF] select-none hover:opacity-90 transition-opacity flex items-center space-x-1.5 z-50 relative"
+            className="text-2xl font-black lowercase tracking-tighter text-[#FFFFFF] select-none hover:opacity-90 transition-opacity flex items-center space-x-1.5"
           >
             <span className="text-[#BAFF39]">sonara</span>
             <span className="w-1.5 h-1.5 bg-[#BAFF39] rounded-full"></span>
@@ -84,6 +84,14 @@ export default function Header() {
             {categoryLink(t('Discover'), '/discover')}
             {categoryLink(items.length > 0 ? `${t('Cart (')}${items.length})` : t('Cart'), '/cart')}
           </nav>
+        </div>
+
+        {/* Center: Slogan */}
+        <div className="absolute left-1/2 -translate-x-1/2 hidden xl:flex flex-col items-center justify-center pointer-events-none z-10 w-full text-center">
+          <span className="text-[10px] text-[#737373] tracking-widest uppercase font-mono leading-relaxed">
+            {t('Better music')} <br />
+            {t('streaming for everyone.')}
+          </span>
         </div>
 
         {/* Middle Right Links & Right Section */}
@@ -104,12 +112,6 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center space-x-4 md:space-x-6">
-            {/* Slogan & UI indicator */}
-            <span className="hidden xl:inline-block text-[10px] text-[#737373] tracking-widest uppercase text-end font-mono leading-none border-r border-[#262626] pr-6">
-              {t('Better music')} <br />
-              {t('streaming for everyone.')}
-            </span>
-
             {categoryLink(t('Login'), '/login', 'text-[#BAFF39] hover:text-[#BAFF39]/85', () => setShowMobileMenu(false))}
             
             {/* Language Switcher */}

@@ -661,8 +661,8 @@ export default function HeroCanvas() {
               <div 
                 className={`rounded-full transition-all duration-350 ${
                   isDotCurrent 
-                    ? 'w-3 h-3 bg-white shadow-[0_0_12px_rgba(255,255,255,1)]' 
-                    : 'w-2.5 h-2.5 bg-[#BAFF39] hover:bg-white hover:scale-125 select-none shadow-[0_0_8px_rgba(186,255,57,0.8)]'
+                    ? 'w-4 h-4 bg-white shadow-[0_0_16px_rgba(255,255,255,1)]' 
+                    : 'w-3 h-3 bg-[#BAFF39] hover:bg-white hover:scale-125 select-none shadow-[0_0_10px_rgba(186,255,57,0.8)]'
                 }`}
               />
             </div>

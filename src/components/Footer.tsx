@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Twitter, Instagram, ArrowUpRight, Check, Sparkles, Youtube, Layers } from 'lucide-react';
+import { TRACKS } from '../data/tracks';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -28,15 +29,6 @@ export default function Footer() {
     { name: 'FAQ & Docs', url: '#' },
     { name: 'Terms of Use', url: '#' },
     { name: 'Privacy Policy', url: '#' },
-  ];
-
-  // Marquee vectors (Grainy Lo-fi stage elements drawn as elegant SVGs to ensure immediate, lightweight load)
-  const marqueeItems = [
-    { title: 'VINYL PRESS', desc: 'Analog lathe cutting', accent: '#BAFF39' },
-    { title: 'STAGE FLOOD', desc: 'Sona Live Showcase', accent: '#06B6D4' },
-    { title: 'SIGNAL FEED', desc: 'Eurorack modular wall', accent: '#EC4899' },
-    { title: 'STUDIO BOOTH', desc: 'Vocal capturing 96kHz', accent: '#8B5CF6' },
-    { title: 'MASTER DECK', desc: 'SSL 9000J Console', accent: '#F97316' },
   ];
 
   return (
@@ -102,29 +94,33 @@ export default function Footer() {
 
         {/* Right Side: Black-and-White Lo-fi running Marquee (Vertical Scrolling Tape) */}
         <div className="col-span-1 md:col-span-5 h-[320px] bg-[#050505] border border-[#161616] rounded-2xl relative overflow-hidden flex items-center justify-center p-4">
-          <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#050505] to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#050505] to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#050505] to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#050505] to-transparent z-20 pointer-events-none" />
           
           {/* Moving tape list container */}
           <div className="w-full h-full flex flex-col justify-around relative">
             <motion.div 
-              animate={{ y: [0, -400] }}
-              transition={{ repeat: Infinity, duration: 16, ease: "linear" }}
+              animate={{ y: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
               className="absolute w-full space-y-4"
             >
-              {[...marqueeItems, ...marqueeItems, ...marqueeItems].map((item, idx) => (
+              {[...TRACKS, ...TRACKS].map((track, idx) => (
                 <div 
                   key={idx}
-                  className="bg-[#0b0b0b] border border-[#1e1e1e] rounded-lg p-4 flex items-center justify-between"
+                  className="bg-[#0b0b0b] border border-[#1e1e1e] rounded-lg p-2.5 flex items-center space-x-4"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.accent }} />
-                    <div>
-                      <h4 className="text-xs font-black uppercase tracking-wider text-white">{item.title}</h4>
-                      <p className="text-[10px] text-[#525252] font-mono mt-0.5">{item.desc}</p>
-                    </div>
+                  <img 
+                    src={track.coverUrl} 
+                    alt={track.title}
+                    className="w-12 h-12 object-cover rounded shadow-sm border border-white/5"
+                  />
+                  <div className="flex-1 overflow-hidden">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-white truncate">{track.title}</h4>
+                    <p className="text-[10px] text-[#808080] font-medium mt-0.5 truncate">{track.artist}</p>
                   </div>
-                  <span className="text-[9px] font-mono text-[#404040]">LIVE_FEED</span>
+                  <div className="flex-shrink-0 pr-2 flex flex-col items-center justify-center space-y-1.5 opacity-60">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: track.color }} />
+                  </div>
                 </div>
               ))}
             </motion.div>
